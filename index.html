@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南嘉视觉-授权系统</title>
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f7f7f7;
+}
+
+.container {
+    background-color: white;
+    padding: 20px; /* 保持父容器的内边距 */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 60%; /* 设置宽度为60% */
+    max-width: 100%;
+    margin: 0 auto; /* 居中显示 */
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"] {
+    width: 100%; /* 占满父容器的宽度 */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* 确保宽度包含padding和border */
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-group">
+            <label for="machineSerial">Machine Serial:</label>
+            <input type="text" id="machineSerial" >
+        </div>
+        <div class="form-group">
+            <label for="authorizationDays">Authorization Days:</label>
+            <input type="number" id="authorizationDays" placeholder="Enter authorization days"  min="1" max="10000" value="365">
+        </div>
+        <button id="okButton">OK</button>
+    </div>
+
+    <script>
+        document.getElementById('machineSerial').focus();
+        const { ipcRenderer } = require('electron');
+        document.getElementById('okButton').addEventListener('click', function() {
+            const machineSerial = document.getElementById('machineSerial').value;
+            const authorizationDays = document.getElementById('authorizationDays').value;
+            const keyGenerationDate = new Date().toISOString().split('T')[0];
+
+            const jsonObject = {
+                machineSerial: machineSerial,
+                authorizationDays: authorizationDays,
+                keyGenerationDate: keyGenerationDate
+            };
+
+            const jsonStr = JSON.stringify(jsonObject);
+            const utf8Bytes = new TextEncoder().encode(jsonStr);
+
+            // In a real-world scenario, you would need to use a proper encryption library to handle the encryption.
+            // For demonstration purposes, we'll just show a message that the button was clicked.
+            // TODO: Implement proper encryption logic.
+
+            // Send the data to the main process for encryption and file writing
+            ipcRenderer.send('encrypt-and-save', { jsonStr: jsonStr, machineSerial: machineSerial ,authorizationDays:authorizationDays});
+            // alert(`Data has been sent for encryption and will be saved. Machine Serial: ${machineSerial}, Authorization Days: ${authorizationDays}`);
+        });
+    </script>
+</body>
+</html>
